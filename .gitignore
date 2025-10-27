@@ -1,0 +1,21 @@
+# Environment variables
+srcs/.env
+
+# Data directories
+/home/rbouizer/data/
+
+# Docker volumes
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*~
