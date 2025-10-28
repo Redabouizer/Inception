@@ -67,8 +67,10 @@ EOSQL
     
     echo "MariaDB initialization complete."
 else
-    echo "MariaDB database already initialized."
+    echo "MariaDB database already initialized. Skipping setup."
 fi
+
+echo "Starting MariaDB server..."
 
 # Execute the main command (CMD from Dockerfile)
 exec "$@"

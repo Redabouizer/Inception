@@ -52,8 +52,8 @@ clean: down
 fclean: clean
 	@echo "Removing all Docker resources..."
 	@docker system prune -af --volumes
-	@sudo rm -rf $(DATA_PATH)/wordpress/*
-	@sudo rm -rf $(DATA_PATH)/mariadb/*
+	@sudo rm -rf $(DATA_PATH)/wordpress/* $(DATA_PATH)/wordpress/.[!.]*
+	@sudo rm -rf $(DATA_PATH)/mariadb/* $(DATA_PATH)/mariadb/.[!.]*
 	@echo "Full clean complete."
 
 # Rebuild everything from scratch
