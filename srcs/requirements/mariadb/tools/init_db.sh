@@ -1,20 +1,34 @@
 #!/bin/bash
 
-# Check if MariaDB data directory is initialized
-if [ ! -d "/var/lib/mysql/mysql" ]; then
+set -e
+
+# Check if MariaDB data directory is initialized AND configured
+if [ ! -f "/var/lib/mysql/.initialized" ]; then
     echo "Initializing MariaDB database..."
     
-    # Initialize MariaDB data directory
-    mysql_install_db --user=mysql --datadir=/var/lib/mysql
+    # Initialize MariaDB data directory if needed
+    if [ ! -d "/var/lib/mysql/mysql" ]; then
+        mysql_install_db --user=mysql --datadir=/var/lib/mysql
+    fi
     
     # Start MariaDB temporarily to configure it
-    mysqld_safe --datadir=/var/lib/mysql &
+    mysqld --user=mysql --datadir=/var/lib/mysql --skip-networking=0 --bind-address=0.0.0.0 &
+    MYSQL_PID=$!
     
     # Wait for MariaDB to start
-    until mysqladmin ping --silent; do
-        echo "Waiting for MariaDB to start..."
-        sleep 2
+    echo "Waiting for MariaDB to start..."
+    for i in {30..0}; do
+        if mysqladmin ping --silent 2>/dev/null; then
+            break
+        fi
+        echo "MariaDB is unavailable - sleeping"
+        sleep 1
     done
+    
+    if [ "$i" = 0 ]; then
+        echo "MariaDB failed to start"
+        exit 1
+    fi
     
     echo "MariaDB started. Configuring database..."
     
@@ -42,8 +56,14 @@ EOSQL
     
     echo "Database configuration complete."
     
+    # Create marker file
+    touch /var/lib/mysql/.initialized
+    
     # Stop the temporary MariaDB instance
-    mysqladmin -u root -p${MYSQL_ROOT_PASSWORD} shutdown
+    if ! kill -s TERM "$MYSQL_PID" || ! wait "$MYSQL_PID"; then
+        echo "MariaDB shutdown failed"
+        exit 1
+    fi
     
     echo "MariaDB initialization complete."
 else

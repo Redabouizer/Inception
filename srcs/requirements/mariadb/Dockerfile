@@ -12,6 +12,8 @@ RUN mkdir -p /var/run/mysqld && \
     chown -R mysql:mysql /var/run/mysqld && \
     chmod 777 /var/run/mysqld
 
+# Copy MariaDB configuration
+COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 
 # Copy and set permissions for init script
 COPY tools/init_db.sh /usr/local/bin/
@@ -23,5 +25,5 @@ EXPOSE 3306
 # Set entrypoint
 ENTRYPOINT ["/usr/local/bin/init_db.sh"]
 
-# Run MariaDB in safe mode
-CMD ["mysqld_safe"]
+# Run MariaDB
+CMD ["mysqld", "--user=mysql"]
