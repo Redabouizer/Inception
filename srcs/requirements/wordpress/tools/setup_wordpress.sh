@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Wait for MariaDB to be ready
 echo "Waiting for MariaDB to be ready..."
 until mysql -h mariadb -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -e "SELECT 1" &>/dev/null; do

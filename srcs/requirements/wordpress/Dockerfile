@@ -3,16 +3,16 @@ FROM debian:bullseye
 # Install PHP-FPM and required extensions
 RUN apt-get update && \
     apt-get install -y \
-    php8.2 \
-    php8.2-fpm \
-    php8.2-mysql \
-    php8.2-gd \
-    php8.2-curl \
-    php8.2-mbstring \
-    php8.2-xml \
-    php8.2-zip \
-    php8.2-intl \
-    php8.2-bcmath \
+    php7.4 \
+    php7.4-fpm \
+    php7.4-mysql \
+    php7.4-gd \
+    php7.4-curl \
+    php7.4-mbstring \
+    php7.4-xml \
+    php7.4-zip \
+    php7.4-intl \
+    php7.4-bcmath \
     wget \
     curl \
     mariadb-client && \
@@ -25,8 +25,8 @@ RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.ph
 
 # Configure PHP-FPM
 RUN mkdir -p /run/php && \
-    sed -i 's/listen = \/run\/php\/php8.2-fpm.sock/listen = 9000/g' /etc/php/8.2/fpm/pool.d/www.conf && \
-    sed -i 's/;clear_env = no/clear_env = no/g' /etc/php/8.2/fpm/pool.d/www.conf
+    sed -i 's/listen = \/run\/php\/php7.4-fpm.sock/listen = 9000/g' /etc/php/7.4/fpm/pool.d/www.conf && \
+    sed -i 's/;clear_env = no/clear_env = no/g' /etc/php/7.4/fpm/pool.d/www.conf
 
 # Copy WordPress setup script
 COPY tools/setup_wordpress.sh /usr/local/bin/
@@ -42,4 +42,4 @@ EXPOSE 9000
 ENTRYPOINT ["/usr/local/bin/setup_wordpress.sh"]
 
 # Run PHP-FPM
-CMD ["php-fpm8.2", "-F"]
+CMD ["php-fpm7.4", "-F"]

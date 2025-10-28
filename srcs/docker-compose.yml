@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   mariadb:
     container_name: mariadb
@@ -35,7 +33,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "php-fpm8.2 -t"]
+      test: ["CMD-SHELL", "php-fpm7.4 -t"]
       interval: 10s
       timeout: 5s
       retries: 5
