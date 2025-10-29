@@ -2,36 +2,26 @@
 
 set -e
 
-# Wait for MariaDB to be ready
-echo "Waiting for MariaDB to be ready..."
-until mysql -h mariadb -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -e "SELECT 1" &>/dev/null; do
-    echo "MariaDB is unavailable - sleeping"
-    sleep 3
+echo "Waiting for MariaDB..."
+until mysql -h mariadb -u${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e "SELECT 1" >/dev/null 2>&1; do
+    sleep 2
 done
-echo "MariaDB is up and running!"
+echo "MariaDB ready!"
 
-# Navigate to WordPress directory
 cd /var/www/html
 
-# Check if WordPress is already installed
 if [ ! -f "wp-config.php" ]; then
-    echo "WordPress not found. Installing..."
+    echo "Installing WordPress..."
     
-    # Download WordPress
     wp core download --allow-root
     
-    # Create wp-config.php
     wp config create \
         --dbname=${MYSQL_DATABASE} \
         --dbuser=${MYSQL_USER} \
         --dbpass=${MYSQL_PASSWORD} \
-        --dbhost=mariadb:3306 \
+        --dbhost=mariadb \
         --allow-root
     
-    # Wait a bit for database to be fully ready
-    sleep 5
-    
-    # Install WordPress
     wp core install \
         --url="https://${DOMAIN_NAME}" \
         --title="${WP_TITLE}" \
@@ -41,22 +31,16 @@ if [ ! -f "wp-config.php" ]; then
         --skip-email \
         --allow-root
     
-    # Create additional user
     wp user create \
         ${WP_USER} \
         ${WP_USER_EMAIL} \
-        --role=editor \
-        --user_pass="${WP_USER_PASSWORD}" \
+        --role=author \
+        --user_pass=${WP_USER_PASSWORD} \
         --allow-root
     
-    # Set proper permissions
     chown -R www-data:www-data /var/www/html
-    chmod -R 755 /var/www/html
     
-    echo "WordPress installation complete!"
-else
-    echo "WordPress already installed."
+    echo "WordPress installed!"
 fi
 
-# Execute the main command (CMD from Dockerfile)
 exec "$@"

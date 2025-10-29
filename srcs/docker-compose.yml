@@ -1,50 +1,29 @@
 services:
   mariadb:
     container_name: mariadb
-    build:
-      context: ./requirements/mariadb
-      dockerfile: Dockerfile
-    env_file:
-      - .env
+    build: ./requirements/mariadb
+    env_file: .env
     volumes:
       - mariadb_data:/var/lib/mysql
     networks:
       - inception_network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   wordpress:
     container_name: wordpress
-    build:
-      context: ./requirements/wordpress
-      dockerfile: Dockerfile
-    env_file:
-      - .env
+    build: ./requirements/wordpress
+    env_file: .env
     volumes:
       - wordpress_data:/var/www/html
     networks:
       - inception_network
     depends_on:
-      mariadb:
-        condition: service_healthy
+      - mariadb
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "php-fpm7.4 -t"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   nginx:
     container_name: nginx
-    build:
-      context: ./requirements/nginx
-      dockerfile: Dockerfile
-    env_file:
-      - .env
+    build: ./requirements/nginx
     ports:
       - "443:443"
     volumes:
@@ -52,8 +31,7 @@ services:
     networks:
       - inception_network
     depends_on:
-      wordpress:
-        condition: service_healthy
+      - wordpress
     restart: unless-stopped
 
 volumes:
